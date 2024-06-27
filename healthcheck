@@ -1,7 +1,14 @@
 #!/bin/ash
-FILE="/.docker-sync-healthcheck"
-if [ -f $FILE ]; then
-   exit 0
+
+URL="http://localhost:3000"
+
+RESPONSE=$(curl -s $URL)
+
+# Verifică dacă răspunsul este "yes" sau "no"
+if [ "$RESPONSE" == "yes" ]; then
+  exit 0
+elif [ "$RESPONSE" == "no" ]; then
+  exit 1
 else
-   echo 1
+  exit 2
 fi

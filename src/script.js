@@ -1,53 +1,6 @@
 const syncDirectory = require("sync-directory");
 const anymatch = require("anymatch");
-const nodePath = require("path");
-const fs = require("fs");
-
-function cleanup(callback) {
-  const noop = () => {};
-
-  callback = callback || noop;
-
-  process.on("cleanup", callback);
-
-  process.on("exit", function () {
-    process.emit("cleanup");
-  });
-
-  process.on("SIGINT", function () {
-    process.exit(2);
-  });
-
-  process.on("SIGTERM", function () {
-    process.exit(2);
-  });
-
-  process.on("SIGHUP", function () {
-    process.exit(2);
-  });
-
-  process.on("uncaughtException", function (e) {
-    process.exit(3);
-  });
-}
-
-const HEALTHCHECK_FILE = "/.docker-sync-healthcheck";
-
-function removeHealthCheckFile() {
-  if (!fs.existsSync(HEALTHCHECK_FILE)) {
-    return;
-  }
-  fs.unlinkSync(HEALTHCHECK_FILE);
-}
-
-function createHealthCheckFile() {
-  removeHealthCheckFile();
-  fs.writeFileSync(HEALTHCHECK_FILE, ".", { encoding: "utf-8" });
-}
-
-cleanup(() => {
-  removeHealthCheckFile();
-});
+const express = require('express');
 
 const SRC = "/from";
 const DEST = "/to";
@@ -70,6 +23,8 @@ function relativize(p) {
   }
   return p.substring(SRC.length).replace(/^\/+/, "").trim();
 }
+
+let initialSyncDone = false;
 
 syncDirectory(SRC, DEST, {
   watch: true,
@@ -105,13 +60,21 @@ syncDirectory(SRC, DEST, {
   },
 
   beforeInitialSync() {
-    removeHealthCheckFile();
-
     console.log("Running initial sync...");
   },
   afterInitialSync() {
-    createHealthCheckFile();
+    initialSyncDone = true;
 
     console.log("Initial sync done...");
   },
+});
+
+const app = express();
+app.get('/', (req, res) => {
+  console.log('Healthcheck verify');
+  res.send(initialSyncDone ? 'yes' : 'no').end();
+});
+
+app.listen(3000, () => {
+  console.log('Healthcheck server running...');
 });
