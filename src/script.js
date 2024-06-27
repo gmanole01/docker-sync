@@ -1,6 +1,6 @@
 const syncDirectory = require("sync-directory");
 const anymatch = require("anymatch");
-const express = require('express');
+const express = require("express");
 
 const SRC = "/from";
 const DEST = "/to";
@@ -70,11 +70,10 @@ syncDirectory(SRC, DEST, {
 });
 
 const app = express();
-app.get('/', (req, res) => {
-  console.log('Healthcheck verify');
-  res.send(initialSyncDone ? 'yes' : 'no').end();
+app.get("/", (_, res) => {
+  res.send(initialSyncDone ? "yes" : "no").end();
 });
 
 app.listen(3000, () => {
-  console.log('Healthcheck server running...');
+  console.log("Healthcheck server running...");
 });
