@@ -4,7 +4,6 @@ URL="http://localhost:3000"
 
 RESPONSE=$(curl -s $URL)
 
-# Verifică dacă răspunsul este "yes" sau "no"
 if [ "$RESPONSE" == "yes" ]; then
   exit 0
 elif [ "$RESPONSE" == "no" ]; then
