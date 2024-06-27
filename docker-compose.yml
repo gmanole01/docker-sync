@@ -1,0 +1,13 @@
+name: docker-sync
+services:
+  test:
+    build: .
+    image: docker-sync
+    container_name: docker-sync-test
+    volumes:
+      - ../Licenta/delta-api:/from
+      - test:/to
+    environment:
+      DOCKER_SYNC_IGNORED: "vendor/**,.git/**,.idea/**,.vscode/**"
+volumes:
+  test:

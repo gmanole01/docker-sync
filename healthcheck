@@ -1,0 +1,7 @@
+#!/bin/ash
+FILE="/.docker-sync-healthcheck"
+if [ -f $FILE ]; then
+   exit 0
+else
+   echo 1
+fi
